@@ -112,6 +112,124 @@
 2.构造函数的问题 ：每个方法都要在每个实例上重新创建一遍
 
 #### 6.2.3 原型模式（P147）
+##### 我们创建的每个函数都有一prototype属性，这个属性是一个指针，指向一个对象，而这个对象的用途是包含可以由特定类型的所有实例共享的属性和方法。prototype就是通过调用构造函数而创建的那个对象实例的原型对象。使用原型对象的好处是**可以让所有对象实例共享它包含的属性和方法**。换句话说，不必在构造函数中定义对象实例信息，而是直接添加到原型对象中。
+```
+    function Person(){}
+    Person.prototype.name = "Nicholas"
+    Person.prototype.age = "29"
+    Person.prototype.job = "Software Engineer"
+    Person.prototype.sayName = function(){alert(this.name)}
+    var person1 = new Person()
+    var person2 = new Person()
+    alert(person1.sayName == person2.sayName) //true
+```
+1.理解原型对象（P148）
+
+isPrototypeOf():确定原型对象与实例之间关系
+    
+     alert(Person.prototype.isPrototyprOf(person1)) // true
+
+ECMAscript5增加了一个新方法：Object.getPrototypeOf 返回对象的原型
+
+    alert(Object.getPrototyOf(person1) == Person.prototype) //true
+
+##### 每当代码读取某个对象的某个属性时，都会执行一次搜索，目标是给定名字的属性。首先从**对象实例**本身开始，然后搜索指针指向的原型对象。
+##### 虽然可以通过对象实例访问保存在原型中的值，但却不能通过对象实例重写原型中的值。
+##### 可以使用delete操作符完全删除实例属性，从而能够重新访问原型中的属性。
+hasOwnProperty:检测属性是存在于实例中，还是原型中。存在于实例中才返回true
+
+***ECMAscript5的Object.getOwnpropertyDescriptor()方法只能用于实例属性，要想取得原型属性的描述符，必须直接在原型对象上调用该方法***
+
+2.原型与in操作符
+##### 有两种方式使用in操作符：单独使用和在for-in中循环中使用。单独使用时，in操作符会在通过对象能够访问给属性时返回true，无论属性存在实例中还是原型中。
+
+``` 
+//确定属性是否存在于原型中
+fucntion hasPrototypeProperty(object,name){
+    return (name in object) && !object.hasOwnProperty(name)
+}
+```
+##### 在使用for-in循环时，返回的是所有能够通过对象访问的、可枚举的（enumerated）属性，既包括实例中，也包括原型中的。**屏蔽了原型中不可枚举属性的实例属性也会在for-in循环中返回，因为根据规定，所有开发人员定义的属性都是可枚举的——只有IE8以及更早版本中例外。
+##### Object.keys()接受一个对象作为参数，返回一个包含所有可枚举属性的字符串数组。
+##### Object.getOwnPropertyNames()返回所有实例属性，无论它是否可枚举
+3.更简单的原型语法
+```
+function Person(){}
+Person.prototype = {
+    name:"Nicholas",
+    age:29,
+    job:"Software Engineer",
+    sayName:function(){alert(this.name)}
+}
+//constructor属性变成了新对象的constructor属性（指向Object构造函数）不再指向Person。
+```
+##### 再进一步
+```
+Person.prototype={
+    constructor:Person,
+    ...
+}
+```
+##### 以上特意包含了一个constructor属性，并设置为Person，虽然确保了通过该属性能够正确访问到适当的值。但是会导致它的[[enumerable]]特性被设置为true。默认原生的constructor属性是不可枚举的，试一下Object.defineProperty()
+```
+Object.definePerproty(Person,"constructor",{
+    enumerable:false,
+    value:Person
+})
+```
+4.原型的动态性
+##### 由于在原型中查找值的过程是一次搜索，因此对原型对象所做的任何修改都能够立即从实例上反映出来——即使是**先创建了实例后修改原型**也是照样如此。（实例与原型之间只不过是一个指针，而非副本）
+##### 尽管可以随时为原型添加属性和方法，并且修改能够立即在所有对象实例中反应出来，但是如果是重写整个原型对象，那么情况就不一样了。调用构造函数时会为实例添加一个指向最初原型对象的[[prototype]]指针，而把原型修改为另外一个对象就等于切断了构造函数与最初原型之间的联系。**实例中的指针仅指向原型，而不指向构造函数**（P157）
+5.原生对象的原型
+
+***不推荐产品化的程序中修改原生对象的原型***
+
+6.原型对象的问题
+##### 对于包含引用类型值的属性来说，所有实例中会共享这个属性
+```
+Person.prototy = {
+    ...
+    friends:["shelby","court"],
+    ...
+}
+var person1 = new Person();
+var person2 = new Person();
+person1.friends.push("van");
+alert(person1.friends) // "shelby","court","van"
+alert(person2.friends) // "shelby","court","van"
+// 鉴于此，很少有人单独使用原型模式
+```
+#### 6.2.4 组合使用构造函数模式和原型模式（P1159）
+##### 创建自定义类型最常见的方式。构造函数模式用于定义实例属性，原型模式用于定义方法和共享的属性。结果，每一个实例会有自己的一份实例属性副本，但又共享着对方法的引用。最大限度的节省了内存。
+```
+function Person(name, age, job){     
+    this.name = name;     
+    this.age = age;     
+    this.job = job;     
+    this.friends = ["Shelby", "Court"]; 
+} 
+ 
+Person.prototype = {     
+    constructor : Person,     
+    sayName : function(){         
+        alert(this.name);     
+    } 
+} 
+ 
+var person1 = new Person("Nicholas", 29, "Software Engineer"); 
+var person2 = new Person("Greg", 27, "Doctor"); 
+ 
+person1.friends.push("Van"); 
+alert(person1.friends);    //"Shelby,Count,Van"
+ alert(person2.friends);    //"Shelby,Count" 
+alert(person1.friends === person2.friends);    //false 
+alert(person1.sayName === person2.sayName);    //true
+```
+
+**这种构造函数与原型混成的模式，是目前在 ECMAScript中使用广泛、认同度高的一种创建自 定义类型的方法。可以说，这是用来定义引用类型的一种默认模式。**
+
+
+
 
 
 
