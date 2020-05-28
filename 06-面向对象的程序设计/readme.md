@@ -92,13 +92,13 @@
     - 没有return语句
 ##### 此外函数名Person使用的是大写字母P，主要区别于其他函数；因为构造函数本身也是函数，只不过可以用来创建对象而已。
 ##### 要创建Person的新实例，必须使用new操作符。以这种方式调用构造函数实际上会经历以下4个步骤
-（1）创建一个新对象
+##### （1）创建一个新对象
 
-（2）将构造函数的作用于赋给新对象（因此this就指向了这个新对象）
+##### （2）将构造函数的作用于赋给新对象（因此this就指向了这个新对象）
 
-（3）执行构造函数中的代码（为这个新对象添加属性）
+##### （3）执行构造函数中的代码（为这个新对象添加属性）
 
-（4）返回新对象
+##### （4）返回新对象
 ##### person1和person2这两个对象都有一个constructor（构造函数）属性，指向Person。对象的constructor属性最初是来表示对象类型的。但是提到检测对象类型，还是instanceof操作符要更可靠一些。
 ```
     alert(person1 instanceof Object) //true
@@ -107,9 +107,9 @@
     alert(person2 instanceof Person) //true
 ```
 #### 创建自定义的构造函数意味着将来可以将他的实例标识为一种特定的类型；而这正式构造函数胜过工厂模式的地方
-1.将构造函数当做函数
+##### 1.将构造函数当做函数
 
-2.构造函数的问题 ：每个方法都要在每个实例上重新创建一遍
+##### 2.构造函数的问题 ：每个方法都要在每个实例上重新创建一遍
 
 #### 6.2.3 原型模式（P147）
 ##### 我们创建的每个函数都有一prototype属性，这个属性是一个指针，指向一个对象，而这个对象的用途是包含可以由特定类型的所有实例共享的属性和方法。prototype就是通过调用构造函数而创建的那个对象实例的原型对象。使用原型对象的好处是**可以让所有对象实例共享它包含的属性和方法**。换句话说，不必在构造函数中定义对象实例信息，而是直接添加到原型对象中。
@@ -227,6 +227,83 @@ alert(person1.sayName === person2.sayName);    //true
 ```
 
 **这种构造函数与原型混成的模式，是目前在 ECMAScript中使用广泛、认同度高的一种创建自 定义类型的方法。可以说，这是用来定义引用类型的一种默认模式。**
+#### 动态原型模式（P159）
+#### 寄生构造函数模式（P160）
+##### 基本思想：创建一个函数，该函数的作用仅仅是封装创建对象的代码，然后再返回新创建的对象。
+```
+    function Person(name){
+        var o = new Object();
+        o.name = name;
+        o.sayName = function(){
+            alert(this.name);
+        }
+        return o;
+    }
+    var friend = new Person("Nicholas");
+    friend.sayName(); // "Nicholas"
+    // 除了使用new操作符并把使用的包装函数叫做构造函数之外，这个模式跟工厂模式其实是一模一样。
+    //构造函数在不返回值的情况下，默认会返回新对象实例。而通过构造函数的末尾添加一个return语句，可以重写调用构造函数时返回的值。
+```
+##### 这个模式可以在特殊情况下用来**为对象创建构造函数**。假设想创建一个具有额外方法的特殊数组。由于不能直接修改Array构造函数，因此可以用这个模式
+```
+    function SpecialArray(){
+        //创建数组
+        var values = new Array();
+        //添加值
+        values.push.apply(values,arguments);
+        //添加方法
+        values.toPipedString = function(){
+            return values.split("|");
+        }
+        return values;
+    }
+    var colors = new SpecialArray("red","yellow","blue");
+    alert(colors) // "red|yellow|blue"
+```
+##### 关于寄生构造函数，返回的对象与构造函数或者与构造函数的原型属性之间没有关系；也就是说构造函数返回的对象与在构造函数外部创建的对象没有什么不同。为此，不能依赖instanceof操作符来确定对象类型。（可以使用其他模式的情况下，不要使用这种模式）
+#### 6.2.7 稳妥构造函数模式
+##### 道格拉斯.克罗克福德发明了Javascript的稳妥对象。所谓稳妥对象指的是没有公共属性，而且其方法也不引用this。与寄生构造函数模式类似，但有l两点不同：新创建的对象的实例方法不引用this;二是不使用new操作符调用构造函数
+```
+    function Person(){
+        var o = new Object()
+        //可以在这里定义私有变量和函数
+
+        o.sayName = function(){
+            alert(name);
+        }
+        return o;
+    }
+    // 除了使用sayName方法之外，没有其他办法访问name的值
+    var friend = Person("Nicholas")
+    friend.sayName(); // "Nicholas"
+```
+##### 稳妥构造函数提供这种安全性，使得非常适合在某些安全执行环境下使用
+### 6.3 继承(P162) 
+##### ECMAScript只支持实现继承，主要是依靠原型链实现。
+#### 6.3.1 原型链
+##### 原型链继承基本思想：利用原型让一个引用类型继承另一个引用类型的属性和方法。
+##### 原型链概念：每个构造函数都有一个原型对象，原型对象包含一个指向构造函数的指针（constructor），而实例包含一个指向原型对象的内部指针（[[prototype]]）。假如我们让原型对象等于另一个类型的实例，此时的原型对象将包含一个指向另一个原型的指针，相应地，另一个原型中也包含着一个指向另一个构造函数的指针。假如原型又是另一个类型的实例，那么上述关系依然成立，如此层层递进，就构成了实例与原型的链条。
+```
+    function SuperType(){
+        this.property = true;
+    }
+    SuperType.prototype.getSuperValue = function(){
+        return this.property;
+    }
+    function SubType(){
+        this.subproperty = false;
+    }
+    //继承了SuperType 重写原型对象，代之以一个新类型的实例
+    SubType.prototype = new SuperType()
+    SubType.prototype.getSubValue = function({
+        return this.subproperty;
+    })
+    var instance = new SubType();
+    alert(instance.getSuperValue()); //true
+```
+![原型链基本实现]('6-4.jpg'')
+
+
 
 
 
