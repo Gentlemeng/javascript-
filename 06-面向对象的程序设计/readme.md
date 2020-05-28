@@ -301,7 +301,7 @@ alert(person1.sayName === person2.sayName);    //true
     var instance = new SubType();
     alert(instance.getSuperValue()); //true
 ```
-![原型链基本实现]('6-4.jpg'')
+![原型链基本实现：实例以及构造函数和原型之间的关系]('https://github.com/Gentlemeng/javascript-/blob/master/06-%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1%E7%9A%84%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1/img/6-4.jpg')
 
 
 
