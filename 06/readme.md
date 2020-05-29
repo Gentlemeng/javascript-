@@ -487,6 +487,9 @@ alert(SubType.prototype.isPrototype(instance))   //true
         this.name = name;
         this.colors = ["red","blue"]
     }
+    SuperType.prototype.sayName = function(){
+        alert(this.name);
+    }
     function SubType(name,age){
         SuperType.call(this,name); //第二次调用
         this.age = age;
@@ -497,6 +500,45 @@ alert(SubType.prototype.isPrototype(instance))   //true
         alert(this.age);
     }
 ```
+##### 第一次调用SuperType时,SubType.prototype会得到两个属性：name和colors；他们都是SuperType的实例属性，只不过现在位于SubType的原型中。当调用SubType构造函数时，又会调用一次SuperType构造函数，这一次又在新对象（SubType实例）上创建了实例属性name和colors。于是，这两个属性屏蔽了原型中的两个同名属性。好在我们已经找到了解决这个问题方法——寄生组合继承。
+##### 所谓寄生组合继承，即通过借用构造函数来继承属性，通过原型链的混成形式来继承方法。
+##### 基本思路：不必为了指定子类型的原型而调用超类型构造函数，我们所需要的无非就是超类型原型的一个副本而已(SuperType.call(this,name)这条语句已经会使子类型实例继承超类型构造函数中的属性)。本质上，就是使用寄生式继承来继承超类型的原型，然后再讲结果指定给子类型的原型。寄生组合式继承基本模式如下所示：
+```
+    function inheritPrototype(SuperType,SubType){
+        var prototype = object(SuperType.prototype);
+        prototype.constructor = SubType;
+        SubType.prototype = prototype;
+    }
+```
+##### inheritPrototype()实现了寄生组合继承的最简单形式。这个函数接受子类型和超类型构造函数。在函数内部，第一步是创建超类型原型的一个副本。第二步是为创建的副本添加constructor属性，从而弥补因重写原型而失去的默认constructor属性。最后一步，将新创建的对象（即副本）赋值给子类型的原型。这样我们就可以inheritPrototype()函数语句，去替换前面例子中为子类型原型赋值的语句了。例如：
+```
+function SuperType(name){
+    this.name = name;
+    this.colors = ["red","blue"];
+}
+SuperType.prototype.sayName = function(){
+    alert(this.name);
+}
+function inheritPrototype(SuperType,SubType){
+    var prototype = object(SuperType.prototype);
+    prototype.constructor = SubType;
+    SubType.prototype = prototype;
+}
+function SubTypr(name,age){
+    SuperType.call(this,name);
+    this.age = age
+}
+
+// SubType.prototype = new SuperType();
+inheritPrototype(SuperType,SubType)
+
+SubType.prototype.sayAge = function(){
+    alert(this.age);
+}
+```
+##### 这个例子的高效率体现在它只调用了一次SuperType构造函数，并且因此避免了在SubType.prototype上面创建不必要的，对余的属性。与此同时，原型链还能保持不变；因此，还能够正常使用instanceof和isPropertyOf()。开发人员普遍认为寄生组合式继承是引用类型最理想的继承范式。
+6.4 小结（P174）
+
 
 
 
