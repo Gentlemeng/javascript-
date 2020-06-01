@@ -1,9 +1,9 @@
 # javascript高级程序设计
 ## 第六章-面向对象的程序设计
 
-* [6.1 理解对象](https://github.com/benny201/JavaScript-Notes/tree/master/JavaScript高级程序设计/chapter%205%20%20%20引用类型 "6.1: 理解对象")
-* [6.2 创建对象](https://github.com/benny201/JavaScript-Notes/tree/master/JavaScript高级程序设计/chapter%205%20%20%20引用类型 "6.2: 创建对象")
-    * [6.2.1 工厂模式](https://github.com/benny201/JavaScript-Notes/tree/master/JavaScript高级程序设计/chapter%205%20%20%20引用类型 "6.2.1 工厂模式")
+* [6.1 理解对象](https://github.com/Gentlemeng/javascript-/blob/master/06/6.1%E7%90%86%E8%A7%A3%E5%AF%B9%E8%B1%A1.md "6.1: 理解对象")
+* [6.2 创建对象](https://github.com/Gentlemeng/javascript-/blob/master/06/6.2%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1.md "6.2: 创建对象")
+    * [6.2.1 工厂模式](https://github.com/Gentlemeng/javascript-/blob/master/06/6.2%E5%88%9B%E5%BB%BA%E5%AF%B9%E8%B1%A1.md#621-%E5%B7%A5%E5%8E%82%E6%A8%A1%E5%BC%8F "6.2.1 工厂模式")
     * [6.2.2 构造函数模式](https://github.com/benny201/JavaScript-Notes/tree/master/JavaScript高级程序设计/chapter%205%20%20%20引用类型 "6.2.2 构造函数模式")
     * [6.2.3 原型模式（P147）](https://github.com/benny201/JavaScript-Notes/tree/master/JavaScript高级程序设计/chapter%205%20%20%20引用类型 "6.2.3 原型模式（P147）")
     * [6.2.4 组合使用构造函数模式和原型模式（P159）](https://github.com/benny201/JavaScript-Notes/tree/master/JavaScript高级程序设计/chapter%205%20%20%20引用类型 "6.2.4 组合使用构造函数模式和原型模式（P1159）")
